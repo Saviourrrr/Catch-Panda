@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta http-equiv="Content-Security-Policy"
+    content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'unsafe-inline';" />
+  <title>Overlay</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      background: transparent;
+      overflow: hidden;
+      cursor: crosshair;
+    }
+
+    canvas {
+      position: fixed;
+      top: 0; left: 0;
+      width: 100vw;
+      height: 100vh;
+      display: block;
+    }
+
+    #hint {
+      position: fixed;
+      top: 16px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: rgba(0, 0, 0, 0.65);
+      color: white;
+      font-family: 'Segoe UI', sans-serif;
+      font-size: 0.88rem;
+      padding: 8px 16px;
+      border-radius: 99px;
+      pointer-events: none;
+      backdrop-filter: blur(8px);
+    }
+  </style>
+</head>
+<body>
+  <canvas id="overlay-canvas"></canvas>
+  <div id="hint">Click and drag to select an area — Esc to cancel</div>
+
+  <script>
+    const canvas = document.getElementById('overlay-canvas');
+    const ctx    = canvas.getContext('2d');
+
+    canvas.width  = window.screen.width;
+    canvas.height = window.screen.height;
+
+    let startX = 0, startY = 0;
+    let isDrawing = false;
+
+    function drawOverlay(x, y, w, h) {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+      ctx.fillStyle = 'rgba(0, 0, 0, 0.35)';
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+      ctx.clearRect(x, y, w, h);
+
+      ctx.strokeStyle = '#7ec8a0';
+      ctx.lineWidth   = 2;
+      ctx.strokeRect(x, y, w, h);
+
+      const s = 6;
+      ctx.fillStyle = '#7ec8a0';
+      [[x, y], [x+w, y], [x, y+h], [x+w, y+h]].forEach(([cx, cy]) => {
+        ctx.fillRect(cx - s/2, cy - s/2, s, s);
+      });
+    }
+
+    //Start crop
+    canvas.addEventListener('mousedown', (e) => {
+      isDrawing = true;
+      startX = e.clientX;
+      startY = e.clientY;
+    });
+
+    canvas.addEventListener('mousemove', (e) => {
+      if (!isDrawing) return;
+      drawOverlay(startX, startY, e.clientX - startX, e.clientY - startY);
+    });
+
+    //End crop
+    canvas.addEventListener('mouseup', (e) => {
+      if (!isDrawing) return;
+      isDrawing = false;
+
+      const region = {
+        x:      Math.min(startX, e.clientX),
+        y:      Math.min(startY, e.clientY),
+        width:  Math.abs(e.clientX - startX),
+        height: Math.abs(e.clientY - startY),
+      };
+
+      if (region.width < 10 || region.height < 10) return;
+
+      //sends cords to main.js
+      window.electronAPI.captureRegion(region);
+    });
+
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape') window.electronAPI.cancelOverlay();
+    });
+  </script>
+</body>
+</html>

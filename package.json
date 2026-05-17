@@ -1,0 +1,34 @@
+{
+  "name": "catch-panda",
+  "version": "1.0.0",
+  "description": "AI content detector desktop app",
+  "main": "main.js",
+  "scripts": {
+    "start": "electron .",
+    "build": "electron-builder"
+  },
+  "build": {
+    "appId": "com.catchpanda.app",
+    "productName": "Catch Panda",
+    "win": {
+      "target": "nsis",
+      "icon": "assets/panda-logo.ico"
+    },
+    "files": [
+      "main.js",
+      "preload.js",
+      "renderer/**/*",
+      "assets/**/*",
+      "node_modules/**/*"
+    ]
+  },
+  "devDependencies": {
+    "dotenv": "^16.0.0",
+    "electron": "^29.0.0",
+    "electron-builder": "^24.13.3"
+  },
+  "dependencies": {
+    "electron-store": "^8.1.0",
+    "tesseract.js": "^7.0.0"
+  }
+}
