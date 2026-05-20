@@ -13,3 +13,6 @@ A desktop app to detect AI-generated content on your screen.
 
 - Hive API key (for image detection)
 - Copyleaks API key + email (for text detection)
+
+Here is also the google doc documentation for the app.
+https://docs.google.com/document/d/1jU8stJ97RenCf0Qan7oWuBe5m7LscqCu_AjdJtGFb2U/edit?usp=sharing
